@@ -5,9 +5,9 @@
 #include <string>
 
 enum Level {
-    INFO,
-    WARNING,
-    ERROR,
+INFO,
+WARNING,
+ERROR,
 };
 
 extern Level LOG_LEVEL;
@@ -18,16 +18,9 @@ public:
     static void INFO(const std::string& content);
     static void WARNING(const std::string& content);
     static void ERROR(const std::string& content);
-    static void FUNC_TRACE_INFO();
-    struct LocationInfo {
-
-    };
 
 private:
     static void log(const Level& level, const std::string& content);
-
-private:
-    const char* func_name_;
 };
 
 
