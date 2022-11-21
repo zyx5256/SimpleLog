@@ -1,33 +1,33 @@
-#include "../src/Log.h"
+#include "../src/Logger.h"
 #include "gtest/gtest.h"
 
-Level LOG_LEVEL;
+LogLevel GLOG_LEVEL;
 
 void logAllLevels()
 {
-    LOG::INFO("test info");
-    LOG::WARNING("test warning");
-    LOG::ERROR("test error");
+    LOGGER.INFO("test info");
+    LOGGER.WARNING("test warning");
+    LOGGER.ERROR("test error");
 }
 
 // test info level
 TEST(Log_test, info)
 {
-    LOG_LEVEL = Level::INFO;
+    GLOG_LEVEL = LogLevel::INFO;
     logAllLevels();
 }
 
 // test warning level
 TEST(Log_test, warning)
 {
-    LOG_LEVEL = Level::WARNING;
+    GLOG_LEVEL = LogLevel::WARNING;
     logAllLevels();
 }
 
 // test error level
 TEST(Log_test, error)
 {
-    LOG_LEVEL = Level::ERROR;
+    GLOG_LEVEL = LogLevel::ERROR;
     logAllLevels();
 }
 
