@@ -5,8 +5,6 @@
 #include <ctime>
 #include <sys/time.h>
 
-LogLevel GLOG_LEVEL = LogLevel::INFO;
-
 namespace {
 std::unordered_map<LogLevel, std::string> LOG_NAME_MAP{
   {LogLevel::INFO,    "INFO"},
@@ -20,17 +18,23 @@ std::unordered_map<std::string, LogLevel> NAME_LOG_MAP{
   {"ERROR",   LogLevel::ERROR},
 };
 
-struct LevelSetter {
-  LevelSetter()
-  {
-    std::string levelStr = std::getenv("LOG_LEVEL");
-    if (NAME_LOG_MAP.find(levelStr) == NAME_LOG_MAP.end()) {
-      printf("LOG LEVEL %s not defined. Using default level: INFO\n", levelStr.c_str());
-    } else {
-      GLOG_LEVEL = NAME_LOG_MAP[levelStr];
-    }
+LogLevel LevelSetter()
+{
+  std::string levelStr;
+  try {
+    levelStr = std::getenv("LOG_LEVEL");
+  } catch (std::exception& e) {
+    printf("get env LOG LEVEL failed.\n");
   }
-};
+
+  if (NAME_LOG_MAP.find(levelStr) == NAME_LOG_MAP.end()) {
+    printf("LOG LEVEL:%s is not defined. Using default level: INFO\n", levelStr.c_str());
+    return LogLevel::INFO;
+  } else {
+    printf("LOG LEVEL set: %s\n", levelStr.c_str());
+    return NAME_LOG_MAP[levelStr];
+  }
+}
 }
 
 class LoggerImpl : public Logger {
@@ -46,8 +50,11 @@ private:
   std::__thread_id tid_;
   char time_[80]{};
   LogLevel level_;
-  static LevelSetter levelSetter_;
+  static LogLevel GLOG_LEVEL;
 };
+
+// set log level at compile stage
+LogLevel LoggerImpl::GLOG_LEVEL = LevelSetter();
 
 LoggerImpl::LoggerImpl(const char* fileName, int lineNo, const char* funcName, LogLevel level, std::__thread_id tid) :
   fileName_(fileName), lineNo_(lineNo), funcName_(funcName), level_(level), tid_(tid)
