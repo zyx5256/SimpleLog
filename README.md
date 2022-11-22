@@ -28,7 +28,7 @@ Currently supported API:
 
 ### Example
 ```c++
-#include "simpleLog/Logger.h"
+#include "SimpleLog/Logger.h"
 #include <string>
 
 int main()
