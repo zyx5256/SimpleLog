@@ -1,17 +1,35 @@
 #include "Logger.h"
 #include <unordered_map>
 #include <sstream>
-#include <chrono>
+#include <cstdlib>
 #include <ctime>
 #include <sys/time.h>
 
-extern LogLevel GLOG_LEVEL;
+LogLevel GLOG_LEVEL = LogLevel::INFO;
 
 namespace {
 std::unordered_map<LogLevel, std::string> LOG_NAME_MAP{
   {LogLevel::INFO,    "INFO"},
   {LogLevel::WARNING, "WARNING"},
   {LogLevel::ERROR,   "ERROR"},
+};
+
+std::unordered_map<std::string, LogLevel> NAME_LOG_MAP{
+  {"INFO",    LogLevel::INFO},
+  {"WARNING", LogLevel::WARNING},
+  {"ERROR",   LogLevel::ERROR},
+};
+
+struct LevelSetter {
+  LevelSetter()
+  {
+    std::string levelStr = std::getenv("LOG_LEVEL");
+    if (NAME_LOG_MAP.find(levelStr) == NAME_LOG_MAP.end()) {
+      printf("LOG LEVEL %s not defined. Using default level: INFO\n", levelStr.c_str());
+    } else {
+      GLOG_LEVEL = NAME_LOG_MAP[levelStr];
+    }
+  }
 };
 }
 
@@ -28,6 +46,7 @@ private:
   std::__thread_id tid_;
   char time_[80]{};
   LogLevel level_;
+  static LevelSetter levelSetter_;
 };
 
 LoggerImpl::LoggerImpl(const char* fileName, int lineNo, const char* funcName, LogLevel level, std::__thread_id tid) :
@@ -35,7 +54,7 @@ LoggerImpl::LoggerImpl(const char* fileName, int lineNo, const char* funcName, L
 {
   struct timeval cur_time{};
   gettimeofday(&cur_time, nullptr);
-  struct tm now;
+  struct tm now{};
   localtime_r(&cur_time.tv_sec, &now);
   strftime(time_, 80, "%Y-%m-%d-%H:%M:%S", &now);
 }
