@@ -8,5 +8,5 @@ add_executable(Entry main.cpp)
 target_link_libraries(Entry SimpleLogger)
 
 add_subdirectory(lib/googletest)
-add_executable(TestLog ut/LogTest.cpp)
-target_link_libraries(TestLog SimpleLogger gtest_main)
+add_executable(LogTest ut/LogTest.cpp)
+target_link_libraries(LogTest SimpleLogger gtest_main)

@@ -8,35 +8,36 @@
 #include <sstream>
 
 enum LogLevel {
-INFO,
-WARNING,
-ERROR,
+  INFO,
+  WARNING,
+  ERROR,
+};
+
+struct LogWriter {
+  ~LogWriter() = default;
+
+  template<typename T>
+  LogWriter& operator<<(const T& content) noexcept
+  {
+    sstream_ << content;
+    return *this;
+  }
+
+  std::stringstream sstream_;
 };
 
 class Logger {
 public:
-    Logger(const char* fileName, int lineNo, const char* funcName, LogLevel level, std::__thread_id tid);
-    virtual ~Logger() = default;
-    void log(const std::string& content);
-    template<typename T>
-    Logger& operator<<(const T& content) noexcept // TODO
-    {
-        (*sstream_) << content;
-        log(sstream_->str());
-        return *this;
-    }
+  virtual ~Logger() = default;
 
-private:
-    const char* fileName_;
-    int lineNo_;
-    const char* funcName_;
-    std::__thread_id tid_;
-    char time_[80];
-    LogLevel level_;
-    std::shared_ptr<std::stringstream> sstream_;
+  // any operator that has lower precedence than << is fine. here we uses &
+  virtual void operator&(const LogWriter& logWriter) noexcept = 0;
 };
 
-#define LOGGER(level, threadId) Logger(__FILE__, __LINE__, __FUNCTION__, level, threadId)
+std::unique_ptr<Logger> createLogger(const char* file, int line, const char* function, const LogLevel& level,
+                                     const std::__thread_id& tid);
+
+#define LOGGER(level, threadId) *createLogger(__FILE__, __LINE__, __FUNCTION__, level, threadId) & LogWriter()
 #define LOG_INFO LOGGER(LogLevel::INFO, std::this_thread::get_id())
 #define LOG_WARNING LOGGER(LogLevel::WARNING, std::this_thread::get_id())
 #define LOG_ERROR LOGGER(LogLevel::ERROR, std::this_thread::get_id())

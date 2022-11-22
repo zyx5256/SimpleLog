@@ -3,36 +3,53 @@
 
 LogLevel GLOG_LEVEL;
 
+// test input types: string, int
+TEST(logTest, inputTypes)
+{
+  GLOG_LEVEL = LogLevel::INFO;
+  std::string str = "test str";
+  int i = 11;
+  LOG_INFO << str;
+  LOG_INFO << i;
+}
+
+// test multiple <<
+TEST(logTest, multiInsert)
+{
+  GLOG_LEVEL = LogLevel::INFO;
+  LOG_INFO << "test " << "multiple " << "insert";
+}
+
 void logAllLevels()
 {
-    LOGGER.INFO("test info");
-    LOGGER.WARNING("test warning");
-    LOGGER.ERROR("test error");
+  LOG_INFO << "test info";
+  LOG_WARNING << "test warning";
+  LOG_ERROR << "test error";
 }
 
 // test info level
-TEST(Log_test, info)
+TEST(logTest, info)
 {
-    GLOG_LEVEL = LogLevel::INFO;
-    logAllLevels();
+  GLOG_LEVEL = LogLevel::INFO;
+  logAllLevels();
 }
 
 // test warning level
-TEST(Log_test, warning)
+TEST(logTest, warning)
 {
-    GLOG_LEVEL = LogLevel::WARNING;
-    logAllLevels();
+  GLOG_LEVEL = LogLevel::WARNING;
+  logAllLevels();
 }
 
 // test error level
-TEST(Log_test, error)
+TEST(logTest, error)
 {
-    GLOG_LEVEL = LogLevel::ERROR;
-    logAllLevels();
+  GLOG_LEVEL = LogLevel::ERROR;
+  logAllLevels();
 }
 
 int main()
 {
-    testing::InitGoogleTest();
-    return RUN_ALL_TESTS();
+  testing::InitGoogleTest();
+  return RUN_ALL_TESTS();
 }
