@@ -1,9 +1,8 @@
+#include "src/Logger.h"
 #include <thread>
 #include <vector>
-#include <sstream>
-#include "src/Logger.h"
+#include <cstdlib>
 
-LogLevel GLOG_LEVEL = LogLevel::WARNING;
 
 void func()
 {

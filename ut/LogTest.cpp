@@ -1,51 +1,43 @@
 #include "../src/Logger.h"
 #include "gtest/gtest.h"
+#include <cstdlib>
 
-LogLevel GLOG_LEVEL;
-
-// test input types: string, int
-TEST(logTest, inputTypes)
+// test info log
+TEST(logTest, infoLog)
 {
-  GLOG_LEVEL = LogLevel::INFO;
+  LOG_INFO << "test info";
+}
+
+// test warning log
+TEST(logTest, warningLog)
+{
+  LOG_WARNING << "test warning";
+}
+
+// test error log
+TEST(logTest, errorLog)
+{
+  LOG_ERROR << "test error";
+}
+
+// test input types: string
+TEST(logTest, strTypes)
+{
   std::string str = "test str";
-  int i = 11;
   LOG_INFO << str;
+}
+
+// test input types: int
+TEST(logTest, intTypes)
+{
+  int i = 11;
   LOG_INFO << i;
 }
 
 // test multiple <<
 TEST(logTest, multiInsert)
 {
-  GLOG_LEVEL = LogLevel::INFO;
   LOG_INFO << "test " << "multiple " << "insert";
-}
-
-void logAllLevels()
-{
-  LOG_INFO << "test info";
-  LOG_WARNING << "test warning";
-  LOG_ERROR << "test error";
-}
-
-// test info level
-TEST(logTest, info)
-{
-  GLOG_LEVEL = LogLevel::INFO;
-  logAllLevels();
-}
-
-// test warning level
-TEST(logTest, warning)
-{
-  GLOG_LEVEL = LogLevel::WARNING;
-  logAllLevels();
-}
-
-// test error level
-TEST(logTest, error)
-{
-  GLOG_LEVEL = LogLevel::ERROR;
-  logAllLevels();
 }
 
 int main()
