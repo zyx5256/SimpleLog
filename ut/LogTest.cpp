@@ -1,6 +1,5 @@
-#include "../src/Logger.h"
+#include "src/Logger.h"
 #include "gtest/gtest.h"
-#include <cstdlib>
 
 // test info log
 TEST(logTest, infoLog)
