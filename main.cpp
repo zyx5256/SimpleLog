@@ -1,27 +1,28 @@
 #include "include/Logger.h"
 #include <thread>
 #include <vector>
-#include <cstdlib>
+#include "include/AsyncLogWriter.h"
 
+AsyncLogWriterPtr GWRITER = createAsyncLogWriter();
 
-void func()
+void func(int i)
 {
-  LOG_INFO << "good";
-  LOG_WARNING << "oh my god" << " shit";
+  LOG_INFO << "good " << i ;
+//  LOG_WARNING << "oh my god" << " shit";
 }
 
-int main()
+int main(int argc, char* argv[])
 {
-  setenv("LOG_LEVEL", "WARNING", 1);
-  printf("log level set to %s\n", std::getenv("LOG_LEVEL"));
+  Logger::setLevel(LogLevel::INFO);
   std::vector<std::thread> threads;
-  for (int i = 0; i < 10; ++i) {
-    std::thread td([&]() { func(); });
-    threads.emplace_back(std::move(td));
+  for (int i = 0; i < atoi(argv[1]); ++i) {
+    threads.emplace_back(func, i);
   }
 
   for (std::thread& td: threads) {
     td.join();
   }
+  GWRITER->start();
+  GWRITER->stop();
   return 0;
 }

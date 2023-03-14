@@ -1,5 +1,8 @@
-#include "include/Logger.h"
 #include "gtest/gtest.h"
+#include "include/Logger.h"
+#include "include/AsyncLogWriter.h"
+
+AsyncLogWriterPtr GWRITER = createAsyncLogWriter();
 
 // test info log
 TEST(logTest, infoLog)

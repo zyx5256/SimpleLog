@@ -1,63 +1,60 @@
 #include "include/Logger.h"
 #include <unordered_map>
-#include <sstream>
 #include <cstdlib>
 #include <ctime>
 #include <sys/time.h>
 
-namespace {
-std::unordered_map<LogLevel, std::string> LOG_NAME_MAP{
-  {LogLevel::INFO,    "INFO"},
-  {LogLevel::WARNING, "WARNING"},
-  {LogLevel::ERROR,   "ERROR"},
-};
+// Logger: static methods and variables
+LogLevel initLogLevel() {
+  std::unordered_map<std::string, LogLevel> NAME_LOG_MAP{
+    {"INFO",    LogLevel::INFO},
+    {"WARNING", LogLevel::WARNING},
+    {"ERROR",   LogLevel::ERROR},
+  };
 
-std::unordered_map<std::string, LogLevel> NAME_LOG_MAP{
-  {"INFO",    LogLevel::INFO},
-  {"WARNING", LogLevel::WARNING},
-  {"ERROR",   LogLevel::ERROR},
-};
+  char* levelStr = std::getenv("LOG_LEVEL");
 
-// set log level at compile stage
-LogLevel LevelSetter()
-{
-  std::string levelStr;
-  try {
-    levelStr = std::getenv("LOG_LEVEL");
-  } catch (std::exception& e) {
-    printf("get env LOG LEVEL failed.\n");
-  }
-
-  if (NAME_LOG_MAP.find(levelStr) == NAME_LOG_MAP.end()) {
-    printf("LOG LEVEL:%s is not defined. Using default level: INFO\n", levelStr.c_str());
+  if (levelStr == nullptr || NAME_LOG_MAP.find(levelStr) == NAME_LOG_MAP.end()) {
+    printf("LOG LEVEL %s is not defined. Using default level: INFO\n", levelStr);
     return LogLevel::INFO;
   } else {
-    printf("LOG LEVEL set: %s\n", levelStr.c_str());
+    printf("LOG LEVEL set: %s\n", levelStr);
     return NAME_LOG_MAP[levelStr];
   }
 }
+
+LogLevel Logger::level_ = initLogLevel();
+
+void Logger::setLevel(const LogLevel& lvl)
+{
+  Logger::level_ = lvl;
 }
 
+// Logger implementation
 class LoggerImpl : public Logger {
 public:
-  LoggerImpl(const char* fileName, int lineNo, const char* funcName, LogLevel level, std::__thread_id tid);
+  LoggerImpl(const char* fileName, int lineNo, const char* funcName, const std::string& level, std::thread::id tid);
 
-  void operator&(const LogWriter& logWriter) noexcept override;
+  LogBuffer& buffer() override;
 
 private:
-  const char* fileName_;
-  int lineNo_;
-  const char* funcName_;
-  std::__thread_id tid_;
+  void formatTime();
+
+private:
   char time_[80]{};
-  LogLevel level_;
-  static LogLevel GLOG_LEVEL;
+  LogBuffer logBuffer_;
 };
 
-LogLevel LoggerImpl::GLOG_LEVEL = LevelSetter();
 
-LoggerImpl::LoggerImpl(const char* fileName, int lineNo, const char* funcName, LogLevel level, std::__thread_id tid) :
-  fileName_(fileName), lineNo_(lineNo), funcName_(funcName), level_(level), tid_(tid)
+LoggerImpl::LoggerImpl(const char* fileName, int lineNo, const char* funcName, const std::string& level,
+                       std::thread::id tid)
+{
+
+  formatTime();
+  logBuffer_ << level << " " << time_ << " " << tid << " " << fileName << " " << funcName << " " << lineNo << " ";
+}
+
+void LoggerImpl::formatTime()
 {
   struct timeval cur_time{};
   gettimeofday(&cur_time, nullptr);
@@ -66,24 +63,13 @@ LoggerImpl::LoggerImpl(const char* fileName, int lineNo, const char* funcName, L
   strftime(time_, 80, "%Y-%m-%d-%H:%M:%S", &now);
 }
 
-void LoggerImpl::operator&(const LogWriter& logWriter) noexcept
+LogBuffer& LoggerImpl::buffer()
 {
-  if (level_ < GLOG_LEVEL) {
-    return;
-  }
-  std::stringstream ss;
-  ss << "[" << LOG_NAME_MAP[level_] << "] "
-     << "(" << time_
-     << ", " << tid_
-     << ")[" << fileName_
-     << ":" << funcName_
-     << ":" << lineNo_
-     << "] " << logWriter.sstream_.rdbuf();
-  printf("%s\n", ss.str().c_str());
+  return logBuffer_;
 }
 
-std::unique_ptr<Logger> createLogger(const char* file, int line, const char* function, const LogLevel& level,
-                                     const std::__thread_id& tid)
+std::unique_ptr<Logger> createLogger(const char* file, int line, const char* function, const std::string& level,
+                                     const std::thread::id& tid)
 {
-  return std::make_unique<LoggerImpl>(LoggerImpl(file, line, function, level, tid));
+  return std::make_unique<LoggerImpl>(file, line, function, level, tid);
 }

@@ -4,7 +4,7 @@ project(SimpleLog)
 set(CMAKE_CXX_STANDARD 14)
 include_directories(.)
 
-add_library(SimpleLogger src/Logger.cpp)
+add_library(SimpleLogger src/Logger.cpp src/logBuffer.cpp src/AsyncLogWriter.cpp)
 add_executable(Entry main.cpp)
 target_link_libraries(Entry SimpleLogger)
 

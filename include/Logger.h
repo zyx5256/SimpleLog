@@ -6,6 +6,7 @@
 #include <memory>
 #include <thread>
 #include <sstream>
+#include "LogBuffer.h"
 
 enum LogLevel {
   INFO,
@@ -13,34 +14,24 @@ enum LogLevel {
   ERROR,
 };
 
-struct LogWriter {
-  ~LogWriter() = default;
-
-  template<typename T>
-  LogWriter& operator<<(const T& content) noexcept
-  {
-    sstream_ << content;
-    return *this;
-  }
-
-  std::stringstream sstream_;
-};
-
 class Logger {
 public:
   virtual ~Logger() = default;
 
-  // any operator that has lower precedence than << is fine. here we uses &
-  virtual void operator&(const LogWriter& logWriter) noexcept = 0;
+  virtual LogBuffer& buffer() = 0;
+
+  static void setLevel(const LogLevel& lvl);
+
+  static LogLevel level_;
 };
 
-std::unique_ptr<Logger> createLogger(const char* file, int line, const char* function, const LogLevel& level,
-                                     const std::__thread_id& tid);
+std::unique_ptr<Logger> createLogger(const char* file, int line, const char* function, const std::string& level,
+                                     const std::thread::id& tid);
 
-#define LOGGER(level, threadId) *createLogger(__FILE__, __LINE__, __FUNCTION__, level, threadId) & LogWriter()
-#define LOG_INFO LOGGER(LogLevel::INFO, std::this_thread::get_id())
-#define LOG_WARNING LOGGER(LogLevel::WARNING, std::this_thread::get_id())
-#define LOG_ERROR LOGGER(LogLevel::ERROR, std::this_thread::get_id())
+#define LOGGER(level, threadId) createLogger(__FILE__, __LINE__, __FUNCTION__, level, threadId)->buffer()
+#define LOG_INFO if (Logger::level_ <= LogLevel::INFO) LOGGER("INFO ", std::this_thread::get_id())
+#define LOG_WARNING if (Logger::level_ <= LogLevel::WARNING) LOGGER("WARN ", std::this_thread::get_id())
+#define LOG_ERROR if (Logger::level_ <= LogLevel::ERROR) LOGGER("ERROR", std::this_thread::get_id())
 
 
 #endif //SIMPLE_LOGGER_LOGGER_H
