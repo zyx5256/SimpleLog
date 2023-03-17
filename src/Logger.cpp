@@ -2,6 +2,7 @@
 #include <unordered_map>
 #include <cstdlib>
 #include <ctime>
+#include <utility>
 #include <sys/time.h>
 
 // Logger: static methods and variables
@@ -30,19 +31,24 @@ void Logger::setLevel(const LogLevel& lvl)
   Logger::level_ = lvl;
 }
 
+void Logger::setOutputFunc(const std::function<void(char*, size_t)>& outputFunc)
+{
+  LogStream::setOutputFunc(outputFunc);
+}
+
 // Logger implementation
 class LoggerImpl : public Logger {
 public:
   LoggerImpl(const char* fileName, int lineNo, const char* funcName, const std::string& level, std::thread::id tid);
 
-  LogBuffer& buffer() override;
+  LogStream& buffer() override;
 
 private:
   void formatTime();
 
 private:
   char time_[80]{};
-  LogBuffer logBuffer_;
+  LogStream logBuffer_;
 };
 
 
@@ -63,7 +69,7 @@ void LoggerImpl::formatTime()
   strftime(time_, 80, "%Y-%m-%d-%H:%M:%S", &now);
 }
 
-LogBuffer& LoggerImpl::buffer()
+LogStream& LoggerImpl::buffer()
 {
   return logBuffer_;
 }

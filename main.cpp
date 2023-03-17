@@ -1,9 +1,11 @@
 #include "include/Logger.h"
+#include "include/AsyncLogWriter.h"
 #include <thread>
 #include <vector>
-#include "include/AsyncLogWriter.h"
+#include <unistd.h>
+#include <random>
 
-AsyncLogWriterPtr GWRITER = createAsyncLogWriter();
+AsyncLogWriterPtr GWRITER = createAsyncLogWriter2();
 
 void func(int i)
 {
@@ -11,18 +13,20 @@ void func(int i)
 //  LOG_WARNING << "oh my god" << " shit";
 }
 
-int main(int argc, char* argv[])
+int main()
 {
+  GWRITER->start();
   Logger::setLevel(LogLevel::INFO);
   std::vector<std::thread> threads;
-  for (int i = 0; i < atoi(argv[1]); ++i) {
+  for (int i = 0; i < 10; ++i) {
+    std::this_thread::sleep_for(std::chrono::milliseconds(rand() % 100));
     threads.emplace_back(func, i);
   }
 
   for (std::thread& td: threads) {
     td.join();
   }
-  GWRITER->start();
+  sleep(1);
   GWRITER->stop();
   return 0;
 }

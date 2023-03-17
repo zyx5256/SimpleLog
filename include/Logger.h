@@ -6,7 +6,7 @@
 #include <memory>
 #include <thread>
 #include <sstream>
-#include "LogBuffer.h"
+#include "LogStream.h"
 
 enum LogLevel {
   INFO,
@@ -18,7 +18,9 @@ class Logger {
 public:
   virtual ~Logger() = default;
 
-  virtual LogBuffer& buffer() = 0;
+  virtual LogStream& buffer() = 0;
+
+  static void setOutputFunc(const std::function<void(char*, size_t)>& outputFunc);
 
   static void setLevel(const LogLevel& lvl);
 

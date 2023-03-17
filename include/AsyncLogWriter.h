@@ -18,6 +18,11 @@ public:
 };
 
 typedef std::shared_ptr<AsyncLogWriter> AsyncLogWriterPtr;
-AsyncLogWriterPtr createAsyncLogWriter();
+
+AsyncLogWriterPtr createAsyncLogWriter1();
+
+AsyncLogWriterPtr createAsyncLogWriter2();
+
+AsyncLogWriterPtr createAsyncLogWriter3();
 
 #endif //SIMPLELOG_ASYNCLOGWRITER_H
