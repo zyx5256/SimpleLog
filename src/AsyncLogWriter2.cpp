@@ -78,7 +78,7 @@ void AsyncLogWriter2Impl::append(char* content, size_t len)
     curBuffer_->append(content, len);
     return;
   }
-  printf("%c: current buffer reach max.\n", content[len - 2]);
+  printf("current buffer reach max: %s\n", &content[0]);
   putBufToWriteList();
   curBuffer_->append(content, len);
 }

@@ -15,11 +15,12 @@ void func(int i)
 
 int main()
 {
+  Logger::setOutputFunc([&](char* content, size_t len) { GWRITER->append(content, len); });
   GWRITER->start();
   Logger::setLevel(LogLevel::INFO);
   std::vector<std::thread> threads;
   for (int i = 0; i < 10; ++i) {
-    std::this_thread::sleep_for(std::chrono::milliseconds(rand() % 100));
+    std::this_thread::sleep_for(std::chrono::milliseconds(rand() % 50));
     threads.emplace_back(func, i);
   }
 
