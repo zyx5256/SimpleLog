@@ -78,7 +78,7 @@ void AsyncLogWriter2Impl::append(char* content, size_t len)
     curBuffer_->append(content, len);
     return;
   }
-  printf("current buffer reach max: %s\n", &content[0]);
+  printf("current buffer reach max: %s\n", &content[0]); // DEBUG
   putBufToWriteList();
   curBuffer_->append(content, len);
 }
@@ -98,10 +98,10 @@ void AsyncLogWriter2Impl::threadFunc()
         continue;
       }
 
-      printf("write: push buffer to write list.\n");
+      printf("write: push buffer to write list.\n"); // DEBUG
       putBufToWriteList();
 
-      printf("write: swap buffer lists.\n");
+      printf("write: swap buffer lists.\n"); // DEBUG
       std::swap(buffersToWrite, buffers_);
     } // unlock
 
@@ -114,7 +114,7 @@ void AsyncLogWriter2Impl::threadFunc()
     { // lock, reuse backupBuffer_
       std::lock_guard<std::mutex> guard(mtx_);
       if (backupBuffer_ == nullptr) {
-        printf("write: reuse buffer as backup buffer.\n");
+        printf("write: reuse buffer as backup buffer.\n"); // DEBUG
         backupBuffer_ = std::move(buffersToWrite.back());
         buffersToWrite.pop_back();
         backupBuffer_->resetPos();
@@ -129,7 +129,7 @@ void AsyncLogWriter2Impl::putBufToWriteList()
 {
   buffers_.emplace_back(std::move(curBuffer_));
   if (backupBuffer_ == nullptr) {
-    printf("new buffer created.\n");
+    printf("new buffer created.\n"); // DEBUG
     curBuffer_ = std::make_unique<LargeBuffer>();
   } else {
     curBuffer_ = std::move(backupBuffer_);

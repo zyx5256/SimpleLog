@@ -5,7 +5,7 @@
 #include <unistd.h>
 #include <random>
 
-AsyncLogWriterPtr GWRITER = createAsyncLogWriter2();
+AsyncLogWriterPtr GWRITER = createAsyncLogWriter1();
 
 void func(int i)
 {
