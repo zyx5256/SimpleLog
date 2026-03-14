@@ -6,7 +6,7 @@
 #include <condition_variable>
 #include <vector>
 
-// TODO: using 4 buffers and 2 buffer lists
+// TODO: using a buffer pool and 2 buffer lists
 class AsyncLogWriter3Impl : public AsyncLogWriter {
 public:
   AsyncLogWriter3Impl();
