@@ -10,7 +10,7 @@ add_library(Utils utils/CountDownLatch.cpp utils/Buffer.cpp)
 add_executable(Entry main.cpp)
 target_link_libraries(Entry SimpleLogger Utils)
 
-add_subdirectory(lib/googletest)
+#add_subdirectory(lib/googletest)
 add_executable(testSingleThread ut/testSingleThread.cpp)
 add_executable(testLogWriter1 ut/testLogWriter1.cpp)
 add_executable(testLogWriter2 ut/testLogWriter2.cpp)

@@ -3,6 +3,7 @@
 #include "include/Buffer.h"
 #include <thread>
 #include <atomic>
+#include <cassert>
 #include <condition_variable>
 #include <vector>
 
@@ -64,6 +65,7 @@ void AsyncLogWriter2Impl::stop()
 {
   latch_->countDownToZero();
   running_ = false;
+  cv_.notify_one();
   if (td_.joinable()) {
     td_.join();
     printf("AsyncLogWriter2: end.\n");
@@ -81,6 +83,7 @@ void AsyncLogWriter2Impl::append(char* content, size_t len)
   printf("current buffer reach max: %s\n", &content[0]); // DEBUG
   putBufToWriteList();
   curBuffer_->append(content, len);
+  cv_.notify_one();
 }
 
 void AsyncLogWriter2Impl::threadFunc()
