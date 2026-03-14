@@ -110,6 +110,12 @@ void AsyncLogWriter2Impl::threadFunc()
 
     assert(!buffersToWrite.empty());
 
+    if (buffersToWrite.size() > 25)
+    {
+      printf("Dropped log messages, %zd larger buffers\n", buffersToWrite.size()-2);
+      buffersToWrite.erase(buffersToWrite.begin()+2, buffersToWrite.end());
+    }
+
     for (auto& buffer : buffersToWrite) {
       printf("batch: \n%.*s\n", static_cast<int>(buffer->size()), buffer->data());
     }
